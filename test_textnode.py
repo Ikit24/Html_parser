@@ -29,6 +29,24 @@ class TestTextNode(unittest.TestCase):
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, None)
         self.assertEqual(html_node.value, "Just plain text")
+    
+    def test_text_node_to_html_node_test_BOLD(self):
+        node = TextNode("bold text", TextType.BOLD)
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, "b")
+        self.assertEqual(html_node.value, "bold text")
+        
+    def test_text_node_to_html_node_test_ITALIC(self):
+        node = TextNode("italic text", TextType.ITALIC)
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, "i")
+        self.assertEqual(html_node.value, "italic text")
+
+    def test_text_node_to_html_node_test_CODE(self):
+        node = TextNode("code text", TextType.CODE)
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, "code")
+        self.assertEqual(html_node.value, "code text")
 
 if __name__ == "__main__":
     unittest.main()
