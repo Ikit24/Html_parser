@@ -72,3 +72,6 @@ class TestParentNode(unittest.TestCase):
         node = ParentNode("div", [])
         expected = "<div></div>"
         self.assertEqual(node.to_html(), expected)
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
