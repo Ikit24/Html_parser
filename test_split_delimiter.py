@@ -15,6 +15,41 @@ class TextSplitDelimiter(unittest.TestCase):
                 TextNode(" word", TextType.TEXT),
             ]
         )
+    def test_split_node_delimiter_bold(self):
+        node = TextNode("Hello **world** example", TextType.TEXT)
+        nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(
+                nodes,
+                [
+                    TextNode("Hello ", TextType.TEXT),
+                    TextNode("world", TextType.BOLD),
+                    TextNode(" example", TextType.TEXT),
+                ]
+            )
+    
+    def test_split_node_delimiter_invalid(self):
+        node = TextNode("Hello `world example", TextType.TEXT)
+        with self.assertRaises(ValueError):
+            split_nodes_delimiter([node], "`", TextType.CODE)
+
+    def test_split_node_delimiter_preserve_non_text(self):
+        node = TextNode("Already bold", TextType.BOLD)
+        nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(
+                nodes,
+                [TextNode("Already bold", TextType.BOLD)]
+        )
+
+    def test_split_node_delimiter_empty(self):
+        node = TextNode("Hello ``world", TextType.TEXT)
+        nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(
+                nodes,
+                [            
+                    TextNode("Hello ", TextType.TEXT),
+                    TextNode("", TextType.CODE),
+                    TextNode("world", TextType.TEXT)]
+            )
 
 if __name__ == "__main__":
     unittest.main()
