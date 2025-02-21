@@ -1,6 +1,6 @@
 import unittest
 
-from split_delimiter import split_nodes_delimiter
+from split_delimiter import split_nodes_delimiter, extract_markdown_images
 from textnode import TextNode, TextType
 
 class TextSplitDelimiter(unittest.TestCase):
@@ -50,6 +50,11 @@ class TextSplitDelimiter(unittest.TestCase):
                     TextNode("", TextType.CODE),
                     TextNode("world", TextType.TEXT)]
             )
+
+    def test_extract_markdown_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif)"
+        expected = [("rick roll", "https://i.imgur.com/aKaOqIh.gif")]
+        self.assertEqual(extract_markdown_images(text), expected)
 
 if __name__ == "__main__":
     unittest.main()
