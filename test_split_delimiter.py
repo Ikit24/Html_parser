@@ -56,11 +56,40 @@ class TextSplitDelimiter(unittest.TestCase):
         expected = [("rick roll", "https://i.imgur.com/aKaOqIh.gif")]
         self.assertEqual(extract_markdown_images(text), expected)
 
+    def test_extract_markdown_images_mixed(self):
+        text = "A ![image](img.jpg) and a [link](url) together"
+        expected = [("image", "img.jpg")]
+        self.assertEqual(extract_markdown_images(text), expected)
+   
+    def test_extract_markdown_images_edge_cases(self):
+        text = "Empty ![](img.jpg) and ![alt text]() and ![]() and ![]()"
+        expected = [
+                ("", "img.jpg"),
+                ("alt text", ""),
+                ("", ""),
+                ("", "")
+        ]
+        self.assertEqual(extract_markdown_images(text), expected)
+
     def test_extract_markdown_links(self):
         text = "This is text with a link [to boot dev](https://www.boot.dev)"
         expected = [("to boot dev", "https://www.boot.dev")]
         self.assertEqual(extract_markdown_links(text), expected)
 
+    def test_extract_markdown_links(self):
+        text = "Multiple [link1](url1) and [link2](url2)"
+        expected = [("link1", "url1"), ("link2", "url2")]
+        self.assertEqual(extract_markdown_links(text), expected)
+
+    def test_extract_markdown_links_edge_cases(self):
+        text = "Empty [](url) and [text]() and ![]() and []()"
+        expected = [
+                ("", "url"),
+                ("text", ""),
+                ("", "")
+        ]
+        self.assertEqual(extract_markdown_links(text), expected)
+
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbose=2)
 
