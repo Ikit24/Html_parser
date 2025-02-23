@@ -33,22 +33,26 @@ def split_nodes_image(old_nodes):
             result_nodes.append(old_node)
             continue
 
-        images = extract_markdown_images(old_node.text)
+        remaining_text = old_node.text
+
+        images = extract_markdown_images(remaining_text)
         
         if not images:
             result_nodes.append(old_node)
             continue
 
         for alt, url in images:
-            parts = old_node.text.split(f"![{alt}]({url})", 1)
+            parts = remaining_text.split(f"![{alt}]({url})", 1)
             
             if parts[0]:
                 result_nodes.append(TextNode(parts[0], TextType.TEXT))
 
             result_nodes.append(TextNode(alt, TextType.IMAGE, url))
 
-            if parts[1]:
-                result_nodes.append(TextNode(parts[1], TextType.TEXT))
+            remaining_text = parts[1]
+            
+        if remaining_text:
+            result_nodes.append(TextNode(remaining_text, TextType.TEXT))
     
     return result_nodes
 
@@ -81,3 +85,15 @@ def split_nodes_link(old_nodes):
             result_nodes.append(TextNode(remaining_text, TextType.TEXT))
 
     return result_nodes
+
+def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.TEXT)]
+
+    nodes = split_nodes_link(nodes)
+    nodes = split_nodes_image(nodes)
+
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    
+    return nodes

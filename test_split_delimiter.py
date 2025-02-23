@@ -90,6 +90,32 @@ class TextSplitDelimiter(unittest.TestCase):
         ]
         self.assertEqual(extract_markdown_links(text), expected)
 
+    def test_split_nodes_image(self):
+        node = TextNode("This is a text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif)", TextType.TEXT)
+        nodes = [
+                TextNode("This is a text with a ", TextType.TEXT),
+                TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+                ]
+        self.assertEqual(split_nodes_image([node]), nodes)
+
+    def test_split_nodes_image_empty(self):
+        node = TextNode("This is a text without an image", TextType.TEXT)
+        nodes = [TextNode("This is a text without an image", TextType.TEXT)]
+        self.assertEqual(split_nodes_image([node]), nodes)
+
+    def test_split_nodes_double_images(self):
+        node = TextNode(
+                "This is the first pic's text ![rick roll](https://i.imgur.com/aKaOqIh.gif) and here comes the second ![brick stroller](https://i.imgur.com/bJbLwOj.gif)", TextType.TEXT,
+                )
+        nodes = [
+                TextNode("This is the first pic's text ", TextType.TEXT),
+                TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+                TextNode(" and here comes the second ", TextType.TEXT),
+                TextNode("brick stroller", TextType.IMAGE, "https://i.imgur.com/bJbLwOj.gif"),
+                ]
+        self.assertEqual(split_nodes_image([node]), nodes)
+                    
+
     def test_split_nodes_link(self):
         node = TextNode("This is text with a link [to boot dev](https://www.boot.dev)", TextType.TEXT)
         nodes = [
@@ -117,6 +143,7 @@ class TextSplitDelimiter(unittest.TestCase):
                     ),
         ]
         self.assertEqual(split_nodes_link([node]), nodes)
+
 
 if __name__ == "__main__":
     unittest.main(verbose=2)
