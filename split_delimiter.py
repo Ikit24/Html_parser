@@ -59,18 +59,25 @@ def split_nodes_link(old_nodes):
             result_nodes.append(old_node)
             continue
 
-        links = extract_markdown_links(old_node.text)
+        remaining_text = old_node.text
+
+        links = extract_markdown_links(remaining_text)
 
         if not links:
             result_nodes.append(old_node)
             continue
 
         for title, url in links:
-            parts = old_node.text.split(f"[{title}]({url})", 1)
+            parts = remaining_text.split(f"[{title}]({url})", 1)
 
             if parts[0]:
                 result_nodes.append(TextNode(parts[0], TextType.TEXT))
 
             result_nodes.append(TextNode(title, TextType.LINK, url))
-            if parts[1]:
-                result_nodes.append(TextNode(parts[1], TextType.TEXT))                                                                                                                                                                                                                                                return result_nodes
+
+            remaining_text = parts[1]
+
+        if remaining_text:
+            result_nodes.append(TextNode(remaining_text, TextType.TEXT))
+
+    return result_nodes

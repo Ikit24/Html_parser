@@ -1,6 +1,6 @@
 import unittest
 
-from split_delimiter import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from split_delimiter import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
 from textnode import TextNode, TextType
 
 class TextSplitDelimiter(unittest.TestCase):
@@ -89,6 +89,34 @@ class TextSplitDelimiter(unittest.TestCase):
                 ("", "")
         ]
         self.assertEqual(extract_markdown_links(text), expected)
+
+    def test_split_nodes_link(self):
+        node = TextNode("This is text with a link [to boot dev](https://www.boot.dev)", TextType.TEXT)
+        nodes = [
+                TextNode("This is text with a link ", TextType.TEXT),
+                TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+                ]
+        self.assertEqual(split_nodes_link([node]), nodes)
+
+    def test_split_nodes_link_empty(self):
+        node = TextNode("This is a text without a link", TextType.TEXT)
+        nodes = [TextNode("This is a text without a link", TextType.TEXT)]
+        self.assertEqual(split_nodes_link([node]), nodes)
+
+    def test_split_nodes_double_links(self):
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.TEXT,
+        )
+        nodes = [
+                TextNode("This is text with a link ", TextType.TEXT),
+                TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+                TextNode(" and ", TextType.TEXT),
+                TextNode(
+                    "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+                    ),
+        ]
+        self.assertEqual(split_nodes_link([node]), nodes)
 
 if __name__ == "__main__":
     unittest.main(verbose=2)
