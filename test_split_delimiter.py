@@ -115,6 +115,23 @@ class TextSplitDelimiter(unittest.TestCase):
                 ]
         self.assertEqual(split_nodes_image([node]), nodes)
                     
+    def test_split_nodes_adjacent_images_without_text(self):
+        node = TextNode("![first](https://link1.com)![second](https://link2.com)", TextType.TEXT)
+        nodes = [
+                TextNode("first", TextType.IMAGE, "https://link1.com"),
+                TextNode("second", TextType.IMAGE, "https://link2.com"),
+                ]
+        self.assertEqual(split_nodes_image([node]), nodes)
+
+    def test_split_nodes_image_empty_input_text(self):
+        node = TextNode("", TextType.TEXT)
+        nodes = [TextNode("", TextType.TEXT)]
+        self.assertEqual(split_nodes_image([node]), nodes)
+
+    def test_split_nodes_image_malformed_markdown(self):
+        node = TextNode("This text has a malformed image ![missing](https", TextType.TEXT)
+        nodes = [TextNode("This text has a malformed image ![missing](https", TextType.TEXT)]
+        self.assertEqual(split_nodes_image([node]), nodes)
 
     def test_split_nodes_link(self):
         node = TextNode("This is text with a link [to boot dev](https://www.boot.dev)", TextType.TEXT)
@@ -143,7 +160,6 @@ class TextSplitDelimiter(unittest.TestCase):
                     ),
         ]
         self.assertEqual(split_nodes_link([node]), nodes)
-
 
 if __name__ == "__main__":
     unittest.main(verbose=2)
