@@ -3,19 +3,46 @@ import re
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     result_nodes = []
+    
     for old_node in old_nodes:
         if old_node.text_type != TextType.TEXT:
             result_nodes.append(old_node)
-        else:
-            delimiter_count = old_node.text.count(delimiter)
-            if delimiter_count % 2 != 0:
-                raise ValueError("Invalid markdown: delimiters must be matched pairs")
-            parts = old_node.text.split(delimiter)
-            for i in range(len(parts)):
-                if i % 2 == 0:
-                    result_nodes.append(TextNode(parts[i], TextType.TEXT))
-                else:
-                    result_nodes.append(TextNode(parts[i], text_type))
+            continue
+            
+        text = old_node.text
+        start = 0
+        while start < len(text):
+            delimiter_start = text.find(delimiter, start)
+            
+            if delimiter_start == -1:
+                if start < len(text):
+                    result_nodes.append(TextNode(text[start:], TextType.TEXT))
+                break
+                
+            if delimiter_start > start:
+                result_nodes.append(TextNode(text[start:delimiter_start], TextType.TEXT))
+                
+            delimiter_end = text.find(delimiter, delimiter_start + len(delimiter))
+            if delimiter_end == -1:
+                raise ValueError(f"Unmatched delimiter {delimiter}")
+                
+            # Get the content between delimiters
+            content = text[delimiter_start + len(delimiter):delimiter_end]
+            
+            # If this is a bold delimiter, we need to handle potential italic content
+            if delimiter == "**":
+                inner_nodes = [TextNode(content, TextType.TEXT)]
+                inner_nodes = split_nodes_delimiter(inner_nodes, "*", TextType.ITALIC)
+                for node in inner_nodes:
+                    if node.text_type == TextType.TEXT:
+                        result_nodes.append(TextNode(node.text, text_type))
+                    else:
+                        result_nodes.append(node)
+            else:
+                result_nodes.append(TextNode(content, text_type))
+                
+            start = delimiter_end + len(delimiter)
+            
     return result_nodes
 
 def extract_markdown_images(text):
@@ -92,8 +119,7 @@ def text_to_textnodes(text):
     nodes = split_nodes_link(nodes)
     nodes = split_nodes_image(nodes)
 
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
     nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
     nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
-    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
-    
     return nodes

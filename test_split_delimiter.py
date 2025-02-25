@@ -1,6 +1,6 @@
 import unittest
 
-from split_delimiter import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
+from split_delimiter import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
 from textnode import TextNode, TextType
 
 class TextSplitDelimiter(unittest.TestCase):
@@ -160,6 +160,28 @@ class TextSplitDelimiter(unittest.TestCase):
                     ),
         ]
         self.assertEqual(split_nodes_link([node]), nodes)
+
+    def test_text_to_textnodes_bold_italic_text(self):
+        text = "This is a **bold *italic* text**"
+        nodes = text_to_textnodes(text)
+        expected_nodes = [
+            TextNode("This is a ", TextType.TEXT),
+            TextNode("bold ", TextType.BOLD),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" text", TextType.BOLD),
+        ]
+        self.assertEqual(nodes, expected_nodes)
+
+    # def test_text_to_textnodes_double_bold_text(self):
+    #     text = "This is a **really **BOLD** text**"
+    #     nodes = text_to_textnodes(text)
+    #     expected_nodes= [
+    #         TextNode("This is a ", TextType.TEXT),
+    #         TextNode("really ", TextType.BOLD),
+    #         TextNode("BOLD", TextType.BOLD),
+    #         TextNode(" text", TextType.BOLD),
+    #     ]
+    #     self.assertEqual(nodes, expected_nodes)
 
 if __name__ == "__main__":
     unittest.main(verbose=2)
