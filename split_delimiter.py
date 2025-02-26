@@ -4,7 +4,7 @@ import re
 def text_to_textnodes(text):
     nodes = [TextNode(text, TextType.TEXT)]
     nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
-    nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
     nodes = split_nodes_delimiter(nodes, "`", TextType.CODE) 
     nodes = split_nodes_image(nodes)
     nodes = split_nodes_link(nodes)   
@@ -38,8 +38,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             
             content = text[delimiter_start + len(delimiter):delimiter_end]
             
-            if delimiter == "**" and "*italic*" in content:
-                parts = content.split("*italic*")
+            if delimiter == "**" and "_italic_" in content:
+                parts = content.split("_italic_")
                 if len(parts) == 2:
                     result_nodes.append(TextNode(parts[0], TextType.BOLD))
                     result_nodes.append(TextNode("italic", TextType.ITALIC))
