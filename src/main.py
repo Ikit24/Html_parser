@@ -21,6 +21,15 @@ def copy_static(source_dir, dest_dir):
             os.mkdir(dest_path)
             copy_static(source_path, dest_path)
 
+def extract_title(markdown):
+    markdown = markdown.splitlines()
+    for mark in markdown:
+        if mark.startswith("# ") == True:
+            extracted_markdown = mark.lstrip("#").strip()
+            return extracted_markdown
+    else:
+        raise Exception("Error, no header!")     
+
 def main():
     source_dir = os.path.join(os.getcwd(), "static")
     dest_dir = os.path.join(os.getcwd(), "public")

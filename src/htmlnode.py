@@ -1,4 +1,3 @@
-from split_delimiter import *
 from enum import Enum
 
 class TextType(Enum):
@@ -113,51 +112,3 @@ class ParentNode(HTMLNode):
             tag_str += child.to_html()
         tag_str += f"</{self.tag}>"
         return tag_str
-    
-def markdown_to_html_node(markdown):
-    blocks = markdown_to_blocks(markdown)
-    typed_blocks = block_to_block_type(blocks)
-
-    html_nodes = []
-
-    for block_type, block_content in typed_blocks:
-        if block_type == "p":
-            paragraph_node = HTMLNode(tag="p", children=text_to_children(block_content))
-            html_nodes.append(paragraph_node)
-
-        elif block_type.startswith("h"):
-            level = block_type[1]
-            heading_node = HTMLNode(tag=f"h{level}", children=text_to_children(block_content))
-            html_nodes.append(heading_node)
-
-
-        elif block_type == "code":
-            code_node = HTMLNode(
-                tag="pre",
-                children=[HTMLNode(tag="code", children=[TextNode(block_content)])]
-            )
-            html_nodes.append(code_node)
-
-        elif block_type == "blockquote":
-            quote_node = HTMLNode(tag="blockquote", children=text_to_children(block_content))
-            html_nodes.append(quote_node)
-
-        elif block_type == "ul":
-            list_items = block_content.split("\n")
-            list_node = HTMLNode(
-                tag="ul",
-                children=[HTMLNode(tag="li", children=text_to_children(item)) for item in list_items if item.strip()]
-            )
-            html_nodes.append(list_node)
-
-        elif block_type == "ol":
-            list_items = block_content.split("\n")  # Split into individual list items
-            list_node = HTMLNode(
-                tag="ol",
-                children=[HTMLNode(tag="li", children=text_to_children(item)) for item in list_items if item.strip()]
-            )
-            html_nodes.append(list_node)
-
-    parent_node = HTMLNode(tag="div", children=html_nodes)
-    return parent_node
-
