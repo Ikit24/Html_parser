@@ -127,12 +127,24 @@ def split_nodes_link(old_nodes):
     return result_nodes
 
 def markdown_to_blocks(markdown):
-    blocks = markdown.split("\n\n")
+    blocks = [block for block in markdown.split("\n\n") if block.strip()]
+
+    print(f"Validated Blocks: {blocks}")
+    print(f"Markdown content being split: {markdown}")
+
     block_ls = []
     for block in blocks:
+        print(f"Processing block: {block}, Type: {type(block)}")
+
+        if not isinstance(block, str):
+            raise TypeError(f"Expected block to be a string, got {type(block)}")
+        
+        typed_block = block_to_block_type(block)
         cleaned_block = block.strip()
+
         if cleaned_block:
             block_ls.append(cleaned_block)
+
     return block_ls
 
 class BlockType(Enum):
@@ -144,6 +156,8 @@ class BlockType(Enum):
     ORDERED_LIST = "ordered_list"
 
 def block_to_block_type(markdown_text):
+    if not isinstance(markdown_text, str):
+        raise TypeError(f"Expected markdown_text to be a string, got {type(markdown_text)}")
     if re.match(r"^#{1,6} ", markdown_text):
         return BlockType.HEADING
     if markdown_text.startswith("```") and markdown_text.endswith("```"):
@@ -206,11 +220,24 @@ def text_to_children(text):
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
-    typed_blocks = block_to_block_type(blocks)
+    print(f"Blocks passed to block_to_block_type: {blocks}")
+
+    typed_blocks = [(block_to_block_type(block), block) for block in blocks]
+
+    if not all(isinstance(block, str) for block in blocks):
+        raise ValueError(f"Non-string block detected: {blocks}")
+    print(f"Blocks: {blocks}")
+    print(f"Typed Blocks: {typed_blocks}")
 
     html_nodes = []
 
     for block_type, block_content in typed_blocks:
+        print(f"Current Block Type: {block_type}, Content: {block_content}")
+        supported_types = {"p", "h1", "h2", "h3", "code", "blockquote", "ul", "ol"}
+        if block_type not in supported_types:
+            print(f"Unexpected block type: {block_type}")
+            continue
+
         if block_type == "p":
             paragraph_node = HTMLNode(tag="p", children=text_to_children(block_content))
             html_nodes.append(paragraph_node)
@@ -219,7 +246,6 @@ def markdown_to_html_node(markdown):
             level = block_type[1]
             heading_node = HTMLNode(tag=f"h{level}", children=text_to_children(block_content))
             html_nodes.append(heading_node)
-
 
         elif block_type == "code":
             code_node = HTMLNode(
